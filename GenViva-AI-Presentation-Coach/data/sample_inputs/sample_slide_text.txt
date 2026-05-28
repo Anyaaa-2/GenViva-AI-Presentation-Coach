@@ -1,0 +1,31 @@
+[SLIDE 1: Title]
+PitchPilot: Agentic AI Presentation Coach
+Sub: Elevating your presentations with multi-agent coaching
+Presented by: Team PitchPilot
+
+[SLIDE 2: Problem Statement]
+- Presentation anxiety affects 75% of students and professionals.
+- Standard feedback is generic and non-actionable (e.g., "be more confident").
+- Reviewing slides and audio manually is time-consuming and inconsistent.
+- No current tool correlates slide content with spoken explanation.
+
+[SLIDE 3: Proposed Solution]
+- Multimodal system that accepts presentation slides and speech transcripts.
+- Stateful Multi-Agent System (LangGraph) for specialized evaluations.
+- Real-time slide density analysis and readability checks.
+- Pacing metrics and automatic filler word detection.
+- Cross-modal slide-speech semantic alignment scoring.
+- Simulated viva generator for interactive QA preparation.
+
+[SLIDE 4: Technical Architecture]
+- Frontend: Streamlit dashboard.
+- Backend: FastAPI services.
+- Multi-Agent Orchestration: LangChain / LangGraph.
+- Models: Sentence Transformers (embeddings), Whisper (speech-to-text), LLMs.
+- Database: FAISS / ChromaDB vector databases.
+
+[SLIDE 5: Conclusion & Future Scope]
+- PitchPilot provides rigorous, evidence-based feedback.
+- Improves user presentation skills by 40% based on early testing.
+- Future work: Live web-cam gesture and facial expression analysis.
+- Integration with Google Slides and Microsoft PowerPoint.
