@@ -38,11 +38,16 @@ def run_starter_pipeline():
         header = slide.split('\n')[0]
         print(f"      * Slide {idx+1}: {header}")
         
-    # 2. Speech Analysis
-    speech_results = analyze_speech(transcript_text)
+    # 2. Speech Analysis (v0.2: passing duration_minutes=2.0)
+    sample_duration = 2.0
+    speech_results = analyze_speech(transcript_text, duration_minutes=sample_duration)
     print(f"\n[2] Speech & Delivery Analysis:")
     print(f"    - Total Word Count: {speech_results['total_words']}")
     print(f"    - Filler Word Count: {speech_results['filler_words_count']}")
+    if speech_results['words_per_minute'] is not None:
+        print(f"    - Presentation Duration: {sample_duration} minutes")
+        print(f"    - Pacing: {speech_results['words_per_minute']} WPM ({speech_results['pace_label']})")
+        print(f"    - Filler Pacing Rate: {speech_results['filler_words_per_minute']} fillers/min")
     print(f"    - Filler Word Distribution:")
     for filler, count in speech_results['filler_distribution'].items():
         print(f"      * '{filler}': {count}")
@@ -60,3 +65,4 @@ def run_starter_pipeline():
 
 if __name__ == "__main__":
     run_starter_pipeline()
+
