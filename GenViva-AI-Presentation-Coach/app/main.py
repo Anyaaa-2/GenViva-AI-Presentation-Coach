@@ -1,7 +1,7 @@
 import os
 from slide_analyzer import analyze_slides
 from speech_analyzer import analyze_speech
-from alignment_analyzer import calculate_alignment
+from alignment_analyzer import calculate_alignment, calculate_slide_wise_alignment
 
 def run_starter_pipeline():
     """
@@ -54,10 +54,20 @@ def run_starter_pipeline():
         
     # 3. Alignment Analysis
     alignment_results = calculate_alignment(slide_text, transcript_text)
+    slide_alignment_results = calculate_slide_wise_alignment(slide_results['slides'], transcript_text)
+    
     print(f"\n[3] Slide-Speech Alignment:")
-    print(f"    - Alignment Score (Word Overlap): {alignment_results['alignment_score']:.2f}")
+    print(f"    - Overall Alignment Score (Word Overlap): {alignment_results['alignment_score']:.2f}")
     print(f"    - Shared Content Words Count: {len(alignment_results['overlap_words'])}")
     print(f"    - Shared Words (Sample): {', '.join(alignment_results['overlap_words'][:10])}...")
+    
+    print(f"\n    - Slide-wise Alignment Scores:")
+    for res in slide_alignment_results:
+        print(f"      * Slide {res['slide_number']}: Score = {res['alignment_score']:.2f} ({res['shared_words_count']} shared words)")
+        if res['shared_words_sample']:
+            print(f"        Shared words sample: {', '.join(res['shared_words_sample'][:5])}")
+        else:
+            print(f"        Shared words sample: (None)")
     
     print("\n" + "=" * 60)
     print("                      ANALYSIS COMPLETE                     ")
