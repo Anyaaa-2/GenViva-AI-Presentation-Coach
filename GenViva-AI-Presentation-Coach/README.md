@@ -27,14 +27,12 @@ This is a placement-ready project implementing an **agentic workflow** with a fe
 ### 5. Agentic Feedback Critic
 - Implements an iterative critic agent that reviews feedback from the individual coaches to ensure recommendations are not contradictory, are constructive, and are actionable.
 
-### Current Progress - v0.1 Starter Pipeline
+## 📈 Current Progress
 
-The starter version currently supports:
-- **Slide Text Splitting & Slide Count:** Splits slide text into individual slides and counts them.
-- **Speech Transcript Word Count:** Calculates the total word count from spoken transcripts.
-- **Filler Word Detection & Distribution:** Identifies common filler words and maps their frequency.
-- **Basic Slide-Speech Alignment Score:** Computes a simple word-overlap alignment score between slide text and transcript.
-- **Local Execution:** Can be run locally using the command `python app/main.py`.
+- **v0.1**: Starter slide, speech, and alignment analysis
+- **v0.2**: Speech metrics with filler distribution and delivery analysis
+- **v0.3**: Slide-wise alignment
+- **v0.4**: Actionable alignment labels and feedback messages
 
 ---
 

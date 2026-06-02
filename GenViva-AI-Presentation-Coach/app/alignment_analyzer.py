@@ -18,6 +18,18 @@ def get_words(text: str) -> set:
     }
     return {word for word in words if word not in stopwords}
 
+def get_alignment_feedback(score: float) -> tuple:
+    """
+    Returns an alignment label ("Strong", "Moderate", "Weak") and a short,
+    actionable feedback message based on the alignment score.
+    """
+    if score >= 0.70:
+        return "Strong", "Excellent alignment! Your speech closely matches the bullet points on this slide."
+    elif score >= 0.40:
+        return "Moderate", "Good overlap, but consider referencing more of the slide's key points in your speech."
+    else:
+        return "Weak", "Low alignment. Try to explicitly discuss the keywords listed on this slide to guide the audience."
+
 def calculate_alignment(slide_text: str, transcript: str) -> Dict[str, Any]:
     """
     Calculates a simple word-overlap alignment score between slide text and transcript.
@@ -43,7 +55,7 @@ def calculate_alignment(slide_text: str, transcript: str) -> Dict[str, Any]:
 def calculate_slide_wise_alignment(slides: list, transcript: str) -> list:
     """
     Compares each slide in the slides list with the overall transcript using a cleaned word-overlap logic.
-    Returns a list of dictionaries with slide alignment metrics.
+    Returns a list of dictionaries with slide alignment metrics and feedback.
     """
     results = []
     transcript_words = get_words(transcript)
@@ -63,9 +75,13 @@ def calculate_slide_wise_alignment(slides: list, transcript: str) -> list:
             score = len(intersection) / len(slide_words)
             overlap = sorted(list(intersection))
             
+        label, message = get_alignment_feedback(score)
+        
         results.append({
             "slide_number": slide_number,
             "alignment_score": round(score, 2),
+            "alignment_label": label,
+            "feedback_message": message,
             "shared_words_count": len(overlap),
             "shared_words_sample": overlap
         })
@@ -84,5 +100,6 @@ if __name__ == "__main__":
         "[SLIDE 2: Problem] presentation anxiety affects 75% of students and standard feedback is generic"
     ]
     print(calculate_slide_wise_alignment(sample_slides, sample_trans))
+
 
 

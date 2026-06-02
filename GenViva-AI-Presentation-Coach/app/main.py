@@ -61,9 +61,10 @@ def run_starter_pipeline():
     print(f"    - Shared Content Words Count: {len(alignment_results['overlap_words'])}")
     print(f"    - Shared Words (Sample): {', '.join(alignment_results['overlap_words'][:10])}...")
     
-    print(f"\n    - Slide-wise Alignment Scores:")
+    print(f"\n    - Slide-wise Alignment Scores & Feedback:")
     for res in slide_alignment_results:
-        print(f"      * Slide {res['slide_number']}: Score = {res['alignment_score']:.2f} ({res['shared_words_count']} shared words)")
+        print(f"      * Slide {res['slide_number']}: Score = {res['alignment_score']:.2f} | Label = {res['alignment_label']}")
+        print(f"        Feedback: {res['feedback_message']}")
         if res['shared_words_sample']:
             print(f"        Shared words sample: {', '.join(res['shared_words_sample'][:5])}")
         else:
