@@ -2,6 +2,7 @@ import os
 from slide_analyzer import analyze_slides
 from speech_analyzer import analyze_speech
 from alignment_analyzer import calculate_alignment, calculate_slide_wise_alignment
+from feedback_generator import generate_feedback
 
 def run_starter_pipeline():
     """
@@ -69,6 +70,29 @@ def run_starter_pipeline():
             print(f"        Shared words sample: {', '.join(res['shared_words_sample'][:5])}")
         else:
             print(f"        Shared words sample: (None)")
+            
+    # 4. Coaching Feedback Generator (v0.5)
+    coaching_results = generate_feedback(speech_results, alignment_results, slide_alignment_results)
+    
+    print(f"\n[4] PitchPilot Coaching Summary:")
+    print(f"    - Overall Summary: {coaching_results['overall_summary']}")
+    
+    print(f"\n    - Delivery Coaching:")
+    for line in coaching_results['delivery_feedback'].split('\n'):
+        if line.strip():
+            print(f"      * {line}")
+            
+    print(f"\n    - Slide Alignment Coaching:")
+    for line in coaching_results['alignment_feedback'].split('\n'):
+        if line.strip():
+            print(f"      * {line}")
+            
+    print(f"\n    - Priority Improvements:")
+    if coaching_results['priority_improvements']:
+        for idx, imp in enumerate(coaching_results['priority_improvements']):
+            print(f"      {idx+1}. {imp}")
+    else:
+        print("      No critical improvements needed. Excellent presentation!")
     
     print("\n" + "=" * 60)
     print("                      ANALYSIS COMPLETE                     ")
