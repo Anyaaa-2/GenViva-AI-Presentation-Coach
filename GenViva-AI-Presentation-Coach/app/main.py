@@ -3,6 +3,7 @@ from slide_analyzer import analyze_slides
 from speech_analyzer import analyze_speech
 from alignment_analyzer import calculate_alignment, calculate_slide_wise_alignment
 from feedback_generator import generate_feedback
+from feedback_critic import critique_feedback
 
 def run_starter_pipeline():
     """
@@ -93,6 +94,23 @@ def run_starter_pipeline():
             print(f"      {idx+1}. {imp}")
     else:
         print("      No critical improvements needed. Excellent presentation!")
+        
+    # 5. Feedback Critic (v0.6)
+    critic_results = critique_feedback(coaching_results, slide_alignment_results, speech_results)
+    
+    print(f"\n[5] PitchPilot Feedback Critic Evaluator:")
+    print(f"    - Quality Metrics:")
+    print(f"      * Specificity Score: {critic_results['feedback_specificity_score']:.2f}")
+    print(f"      * Actionability Score: {critic_results['feedback_actionability_score']:.2f}")
+    print(f"      * Evidence Grounding Score: {critic_results['evidence_grounding_score']:.2f}")
+    print(f"    - Critic Summary: {critic_results['critic_summary']}")
+    
+    if critic_results['warnings']:
+        print(f"    - Warnings:")
+        for idx, warn in enumerate(critic_results['warnings']):
+            print(f"      * Warning {idx+1}: {warn}")
+    else:
+        print(f"    - Warnings: None")
     
     print("\n" + "=" * 60)
     print("                      ANALYSIS COMPLETE                     ")
