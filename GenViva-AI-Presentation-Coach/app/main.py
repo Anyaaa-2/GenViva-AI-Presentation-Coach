@@ -16,6 +16,40 @@ from report_formatter import (
     print_footer
 )
 
+def run_analysis(slide_text: str, transcript: str, duration_minutes: float = None) -> dict:
+    """
+    Executes the complete GenViva presentation analysis pipeline.
+    Returns a structured dictionary containing all intermediate and final results.
+    """
+    # 1. Slide Analysis
+    slide_analysis = analyze_slides(slide_text)
+    
+    # 2. Speech & Delivery Analysis
+    speech_analysis = analyze_speech(transcript, duration_minutes=duration_minutes)
+    
+    # 3. Alignment Analysis
+    overall_alignment = calculate_alignment(slide_text, transcript)
+    slide_wise_alignment = calculate_slide_wise_alignment(slide_analysis['slides'], transcript)
+    
+    # 4. Coaching Feedback Generator (v0.5)
+    feedback = generate_feedback(speech_analysis, overall_alignment, slide_wise_alignment)
+    
+    # 5. Feedback Critic (v0.6)
+    critic_report = critique_feedback(feedback, slide_wise_alignment, speech_analysis)
+    
+    # 6. Viva Question Generator (v0.8)
+    viva_questions = generate_viva_questions(slide_analysis, slide_wise_alignment)
+    
+    return {
+        "slide_analysis": slide_analysis,
+        "speech_analysis": speech_analysis,
+        "overall_alignment": overall_alignment,
+        "slide_wise_alignment": slide_wise_alignment,
+        "feedback": feedback,
+        "critic_report": critic_report,
+        "viva_questions": viva_questions
+    }
+
 def run_starter_pipeline():
     """
     Main entry point for the PitchPilot starter version.
@@ -37,36 +71,18 @@ def run_starter_pipeline():
     with open(transcript_file, "r") as f:
         transcript_text = f.read()
         
-    # Print Header Section
-    print_header()
-    
-    # 1. Slide Analysis
-    slide_results = analyze_slides(slide_text)
-    print_slide_analysis(slide_results)
-        
-    # 2. Speech Analysis (v0.2: passing duration_minutes=2.0)
+    # Run the core analysis pipeline
     sample_duration = 2.0
-    speech_results = analyze_speech(transcript_text, duration_minutes=sample_duration)
-    print_speech_analysis(speech_results, duration_minutes=sample_duration)
-        
-    # 3. Alignment Analysis
-    alignment_results = calculate_alignment(slide_text, transcript_text)
-    slide_alignment_results = calculate_slide_wise_alignment(slide_results['slides'], transcript_text)
-    print_alignment_analysis(alignment_results, slide_alignment_results)
-            
-    # 4. Coaching Feedback Generator (v0.5)
-    coaching_results = generate_feedback(speech_results, alignment_results, slide_alignment_results)
-    print_feedback_summary(coaching_results)
-        
-    # 5. Feedback Critic (v0.6)
-    critic_results = critique_feedback(coaching_results, slide_alignment_results, speech_results)
-    print_critic_report(critic_results)
+    results = run_analysis(slide_text, transcript_text, duration_minutes=sample_duration)
     
-    # 6. Viva Question Generator (v0.8)
-    viva_questions = generate_viva_questions(slide_results, slide_alignment_results)
-    print_viva_questions(viva_questions)
-    
-    # Print Footer Section
+    # Call report formatter functions to print to terminal
+    print_header()
+    print_slide_analysis(results["slide_analysis"])
+    print_speech_analysis(results["speech_analysis"], duration_minutes=sample_duration)
+    print_alignment_analysis(results["overall_alignment"], results["slide_wise_alignment"])
+    print_feedback_summary(results["feedback"])
+    print_critic_report(results["critic_report"])
+    print_viva_questions(results["viva_questions"])
     print_footer()
 
 if __name__ == "__main__":
