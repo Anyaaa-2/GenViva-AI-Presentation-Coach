@@ -1,73 +1,85 @@
 import re
 from typing import Dict, Any, List
 
-def generate_viva_questions(slide_text: str, transcript: str) -> Dict[str, Any]:
+def generate_viva_questions(
+    slide_results: Dict[str, Any],
+    slide_wise_alignment: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
     """
-    Analyzes content to produce academic/professional viva/QA questions and model answers.
-    
-    Args:
-        slide_text (str): Slide texts.
-        transcript (str): Presenter transcript text.
-        
-    Returns:
-        Dict[str, Any]: Structured list of viva questions, conceptual focus, and suggested strategies.
+    Generates a list of tailored viva/QA questions based on slide text headers
+    and the corresponding slide alignment scores.
     """
-    combined_content = (slide_text + " " + transcript).lower()
+    questions = []
+    slides = slide_results.get("slides", [])
     
-    # Simple rule-based trigger system to simulate LLM domain question generation
-    viva_questions = []
-    
-    if "anxiety" in combined_content or "problem" in combined_content:
-        viva_questions.append({
-            "id": 1,
-            "question": "What primary source or survey did you base your 75% presentation anxiety statistic on?",
-            "ideal_response_keywords": ["reference", "empirical study", "research survey"],
-            "difficulty": "Medium",
-            "coaching_tip": "Be prepared to cite specific studies or clarify if it represents target audience surveys."
-        })
-        
-    if "langgraph" in combined_content or "agent" in combined_content:
-        viva_questions.append({
-            "id": 2,
-            "question": "Why did you choose a Multi-Agent system (LangGraph) over a single LLM chain for PitchPilot?",
-            "ideal_response_keywords": ["statefulness", "critic pattern", "parallel nodes", "specialization"],
-            "difficulty": "Hard",
-            "coaching_tip": "Highlight that presentation coaching contains conflicting domains (pacing vs content depth) which suit decoupled agent feedback with a feedback critic."
-        })
-        
-    if "whisper" in combined_content or "faster-whisper" in combined_content:
-        viva_questions.append({
-            "id": 3,
-            "question": "How will your system handle real-time audio chunking and latency when using faster-whisper?",
-            "ideal_response_keywords": ["vad filter", "sliding window", "local hosting", "concurrency"],
-            "difficulty": "Hard",
-            "coaching_tip": "Mention Voice Activity Detection (VAD) to split sentences dynamically before sending them for transcription."
-        })
-        
-    if "alignment" in combined_content or "sentence transformer" in combined_content:
-        viva_questions.append({
-            "id": 4,
-            "question": "How does the slide-speech alignment module handle vocabulary mismatch (e.g., synonyms)?",
-            "ideal_response_keywords": ["dense embeddings", "semantic similarity", "cosine distance", "not just keyword match"],
-            "difficulty": "Medium",
-            "coaching_tip": "Explain that Sentence Transformers map words to a joint vector space, capturing semantic meaning rather than exact spelling overlaps."
-        })
-        
-    # Fallback default questions if content is sparse
-    if len(viva_questions) < 2:
-        viva_questions.append({
-            "id": 5,
-            "question": "Can you explain the scalability constraints of this system when dealing with larger slideshows?",
-            "ideal_response_keywords": ["batch processing", "context length limit", "rate limiting"],
-            "difficulty": "Medium",
-            "coaching_tip": "Discuss pagination of slides and chunking of audio."
-        })
+    # Create a lookup for slide titles and text by slide number
+    slide_lookup = {}
+    for idx, slide_text in enumerate(slides):
+        # Extract title from '[SLIDE X: Title]'
+        match = re.search(r'\[SLIDE\s+(\d+):\s*([^\]]+)\]', slide_text)
+        if match:
+            slide_num = int(match.group(1))
+            title = match.group(2).strip()
+        else:
+            slide_num = idx + 1
+            title = f"Slide {slide_num}"
+        slide_lookup[slide_num] = title
 
-    return {
-        "status": "success",
-        "total_questions_generated": len(viva_questions),
-        "questions": viva_questions
-    }
+    for alignment in slide_wise_alignment:
+        slide_num = alignment["slide_number"]
+        title = slide_lookup.get(slide_num, f"Slide {slide_num}")
+        label = alignment.get("alignment_label", "Moderate")
+        
+        if label == "Weak":
+            question = f"On Slide {slide_num} ({title}), your spoken delivery did not fully cover the listed points. Can you explain the main idea of this slide in your own words?"
+            reason = f"Alignment is Weak ({alignment['alignment_score']}), suggesting the speech strayed from the slide bullet points."
+            difficulty = "Advanced"
+        elif label == "Moderate":
+            question = f"For Slide {slide_num} ({title}), why is the method, problem, or choice discussed here important for your overall presentation?"
+            reason = f"Alignment is Moderate ({alignment['alignment_score']}), meaning the core topics were mentioned but could be elaborated."
+            difficulty = "Intermediate"
+        else:  # Strong
+            question = f"You explained Slide {slide_num} ({title}) very well. How would you justify the design choices or conclusions mentioned here?"
+            reason = f"Alignment is Strong ({alignment['alignment_score']}), showing good coverage of the slide content in speech."
+            difficulty = "Basic"
+            
+        questions.append({
+            "slide_number": slide_num,
+            "question": question,
+            "reason": reason,
+            "difficulty": difficulty
+        })
+        
+    return questions
 
 if __name__ == "__main__":
-    print(generate_viva_questions("We use LangGraph and Whisper.", "This is our agentic tool."))
+    # Test block
+    mock_slides = {
+        "num_slides": 2,
+        "slides": [
+            "[SLIDE 1: Introduction] Introduction to PitchPilot",
+            "[SLIDE 2: Tech Stack] Streamlit, FastAPI, and FAISS"
+        ]
+    }
+    mock_alignment = [
+        {
+            "slide_number": 1,
+            "alignment_score": 0.85,
+            "alignment_label": "Strong",
+            "feedback_message": "Excellent alignment!",
+            "shared_words_count": 5,
+            "shared_words_sample": ["pitchpilot"]
+        },
+        {
+            "slide_number": 2,
+            "alignment_score": 0.25,
+            "alignment_label": "Weak",
+            "feedback_message": "Low alignment.",
+            "shared_words_count": 1,
+            "shared_words_sample": ["streamlit"]
+        }
+    ]
+    
+    qs = generate_viva_questions(mock_slides, mock_alignment)
+    import pprint
+    pprint.pprint(qs)
